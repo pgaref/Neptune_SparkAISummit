@@ -8,26 +8,6 @@ object SumSparkQuery {
 
   val sumFunc = (iter: Iterator[Long]) => iter.reduceLeft(_ + _)
 
-  val sumCoFunc: (TaskContext, Iterator[Long]) ~> (Int, Long) =
-    coroutine { (context: TaskContext, itr: Iterator[Long]) => {
-      var first = true
-      var acc: Long = 0L
-      while (itr.hasNext) {
-        if (context.isPaused()) {
-          yieldval(0)
-        }
-        if (first) {
-          acc = itr.next()
-          first = false
-        }
-        else {
-          acc = acc + itr.next()
-        }
-      }
-      acc
-    }
-    }
-
   def SparkMultiJob(sc: SparkContext): Unit = {
     // Warm up JVM
     val execIds = sc.parallelize(0 until sc.getExecutorMemoryStatus.size,
