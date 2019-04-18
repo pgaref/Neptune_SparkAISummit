@@ -6,9 +6,7 @@ import uk.ac.ic.imperial.base.SparkHelper
 
 object SumNeptuneQuery {
 
-  val sumFunc = (iter: Iterator[Long]) => iter.reduceLeft(_ + _)
-
-  val sumCoFunc: (TaskContext, Iterator[Long]) ~> (Int, Long) =
+  val sumFunc: (TaskContext, Iterator[Long]) ~> (Int, Long) =
     coroutine { (context: TaskContext, itr: Iterator[Long]) => {
       var first = true
       var acc: Long = 0L
@@ -40,8 +38,6 @@ object SumNeptuneQuery {
     val hundredKiloElems = 10000L
     val numIters = 1
 
-    val appStartTime = System.nanoTime()
-
     val thread = new Thread {
       override def run {
         val itStartTime = System.nanoTime()
@@ -49,7 +45,7 @@ object SumNeptuneQuery {
 
           sc.setLocalProperty("neptune_pri", "2")
           val rdd = sc.parallelize(1L to hundredMillionElems).map(x => x + 1)
-          sc.runJob(rdd, sumCoFunc)
+          sc.runJob(rdd, sumFunc)
         }
         val itEndTime = System.nanoTime()
         println(s"Batch Sum took: ${(itEndTime - itStartTime) / 1e6} ms")
@@ -64,7 +60,7 @@ object SumNeptuneQuery {
 
         sc.setLocalProperty("neptune_pri", "1")
         val rdd = sc.parallelize(1L to hundredKiloElems).map(x => x + 1)
-        sc.runJob(rdd, sumCoFunc)
+        sc.runJob(rdd, sumFunc)
     }
     val itEndTime = System.nanoTime()
     println(s"Stream Sum took: ${(itEndTime - itStartTime) / 1e6} ms")

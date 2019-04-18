@@ -40,8 +40,6 @@ object SumSparkQuery {
     val hundredKiloElems = 10000L
     val numIters = 1
 
-    val appStartTime = System.nanoTime()
-
     val thread = new Thread {
       override def run {
         val itStartTime = System.nanoTime()
