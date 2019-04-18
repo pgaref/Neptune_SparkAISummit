@@ -4,7 +4,7 @@ import org.apache.spark.{SparkContext, TaskContext}
 import org.coroutines.{coroutine, yieldval, ~>}
 import uk.ac.ic.imperial.base.SparkHelper
 
-object SumSparkQuery {
+object SumNeptuneQuery {
 
   val sumFunc = (iter: Iterator[Long]) => iter.reduceLeft(_ + _)
 
