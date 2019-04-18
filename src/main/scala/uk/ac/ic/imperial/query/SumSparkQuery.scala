@@ -4,7 +4,7 @@ import org.apache.spark.{SparkContext, TaskContext}
 import org.coroutines.{coroutine, yieldval, ~>}
 import uk.ac.ic.imperial.base.SparkHelper
 
-object SumQuery {
+object SumSparkQuery {
 
   val sumFunc = (iter: Iterator[Long]) => iter.reduceLeft(_ + _)
 
@@ -37,7 +37,7 @@ object SumQuery {
 
 
     val hundredMillionElems = 100000000L
-    val tenKiloElems = 10000L
+    val hundredKiloElems = 10000L
     val numIters = 1
 
     val appStartTime = System.nanoTime()
@@ -46,11 +46,9 @@ object SumQuery {
       override def run {
         val itStartTime = System.nanoTime()
         (0 until numIters).map { i =>
-          val start = System.nanoTime()
 
-          sc.setLocalProperty("neptune_pri", "2")
           val rdd = sc.parallelize(1L to hundredMillionElems).map(x => x + 1)
-          sc.runJob(rdd, sumCoFunc)
+          sc.runJob(rdd, sumFunc)
         }
         val itEndTime = System.nanoTime()
         println(s"Batch Sum took: ${(itEndTime - itStartTime) / 1e6} ms")
@@ -62,11 +60,9 @@ object SumQuery {
     val itStartTime = System.nanoTime()
 
     (0 until numIters).map { i =>
-        val start = System.nanoTime()
 
-        sc.setLocalProperty("neptune_pri", "1")
-        val rdd = sc.parallelize(1L to tenKiloElems).map(x => x + 1)
-        sc.runJob(rdd, sumCoFunc)
+        val rdd = sc.parallelize(1L to hundredKiloElems).map(x => x + 1)
+        sc.runJob(rdd, sumFunc)
     }
     val itEndTime = System.nanoTime()
     println(s"Stream Sum took: ${(itEndTime - itStartTime) / 1e6} ms")
@@ -74,7 +70,7 @@ object SumQuery {
 
   def main(args: Array[String]): Unit = {
     val ss = SparkHelper.
-      getAndConfigureSparkSession(appName = "MultiSum", neptuneCoroutines = true)
+      getAndConfigureSparkSession(appName = "MultiSumSpark", neptuneCoroutines = false)
     SparkMultiJob(ss.sparkContext)
   }
 

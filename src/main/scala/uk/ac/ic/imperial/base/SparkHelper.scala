@@ -9,7 +9,6 @@ object SparkHelper {
     val conf = new SparkConf()
       .setAppName(appName)
       .set("spark.default.parallelism", s"${parallelism}")
-      .set("spark.sql.codegen.wholeStage", "false")
       .setIfMissing("spark.master", s"local[${parallelism}]")
 
 //    conf.set("spark.eventLog.enabled", "true")
