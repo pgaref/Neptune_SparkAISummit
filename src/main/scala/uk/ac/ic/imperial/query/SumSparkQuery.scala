@@ -1,12 +1,9 @@
 package uk.ac.ic.imperial.query
 
-import org.apache.spark.{SparkContext, TaskContext}
-import org.coroutines.{coroutine, yieldval, ~>}
+import org.apache.spark.SparkContext
 import uk.ac.ic.imperial.base.SparkHelper
 
 object SumSparkQuery {
-
-  val sumFunc = (iter: Iterator[Long]) => iter.reduceLeft(_ + _)
 
   def SparkMultiJob(sc: SparkContext): Unit = {
     // Warm up JVM
@@ -17,7 +14,7 @@ object SumSparkQuery {
 
 
     val hundredMillionElems = 100000000L
-    val hundredKiloElems = 10000L
+    val oneMillionElems = 1000000L
     val numIters = 1
 
     val thread = new Thread {
@@ -25,8 +22,7 @@ object SumSparkQuery {
         val itStartTime = System.nanoTime()
         (0 until numIters).map { i =>
 
-          val rdd = sc.parallelize(1L to hundredMillionElems).map(x => x + 1)
-          sc.runJob(rdd, sumFunc)
+          sc.parallelize(1L to hundredMillionElems).map(x => x + 1).sum
         }
         val itEndTime = System.nanoTime()
         println(s"Batch Sum took: ${(itEndTime - itStartTime) / 1e6} ms")
@@ -34,13 +30,12 @@ object SumSparkQuery {
     }
     thread.start
     // Second job submitted after 0.5 seconds
-    Thread.sleep( 500)
+    Thread.sleep(500)
     val itStartTime = System.nanoTime()
 
     (0 until numIters).map { i =>
 
-        val rdd = sc.parallelize(1L to hundredKiloElems).map(x => x + 1)
-        sc.runJob(rdd, sumFunc)
+        sc.parallelize(1L to oneMillionElems).map(x => x + 1).sum
     }
     val itEndTime = System.nanoTime()
     println(s"Stream Sum took: ${(itEndTime - itStartTime) / 1e6} ms")
