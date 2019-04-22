@@ -21,7 +21,7 @@ object SumSparkQuery {
       override def run {
         val itStartTime = System.nanoTime()
         (0 until numIters).map { i =>
-
+          // low priority job
           sc.parallelize(1L to hundredMillionElems).map(x => x + 1).sum
         }
         val itEndTime = System.nanoTime()
@@ -34,7 +34,7 @@ object SumSparkQuery {
     val itStartTime = System.nanoTime()
 
     (0 until numIters).map { i =>
-
+        // high priority job
         sc.parallelize(1L to oneMillionElems).map(x => x + 1).sum
     }
     val itEndTime = System.nanoTime()

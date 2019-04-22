@@ -21,7 +21,7 @@ object SumNeptuneQuery {
       override def run {
         val itStartTime = System.nanoTime()
         (0 until numIters).map { i =>
-
+          // low priority job
           sc.setLocalProperty("neptune_pri", "2")
           sc.parallelize(1L to hundredMillionElems).map(x => x + 1).sum
         }
@@ -35,7 +35,7 @@ object SumNeptuneQuery {
     val itStartTime = System.nanoTime()
 
     (0 until numIters).map { i =>
-
+        // high priority job
         sc.setLocalProperty("neptune_pri", "1")
         sc.parallelize(1L to oneMillionElems).map(x => x + 1).sum
     }
